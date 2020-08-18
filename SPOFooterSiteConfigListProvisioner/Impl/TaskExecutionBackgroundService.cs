@@ -47,8 +47,7 @@ namespace SPOFooterSiteConfigListProvisioner
 
                 if(_hostEnvironment.IsDevelopment() && urls.Count > 10)
                 {
-                    urls = urls.Take(20).ToList();
-                    urls.Add("https://josrod.sharepoint.com/sites/teamsite");
+                    urls = urls.Take(10).ToList();
                 }
 
                 urls.ForEach(delegate (string url)
