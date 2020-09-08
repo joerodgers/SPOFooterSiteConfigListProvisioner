@@ -68,6 +68,7 @@ namespace SPOFooterSiteConfigListProvisioner
                         SetListPermissions(list);
                         ProvisionFields(list);
                         ProvisionDefaultItem(list);
+                        RemoveListFromRecentQuickLaunch(ctx.Web);
                     }
                 }
                 catch (Exception ex)
@@ -227,6 +228,8 @@ namespace SPOFooterSiteConfigListProvisioner
 
             list.Context.ExecuteQueryRetry();
 
+            RemoveListFromRecentQuickLaunch(web);
+
             return list;
         }
 
@@ -280,6 +283,24 @@ namespace SPOFooterSiteConfigListProvisioner
             else
             {
                 _logger.LogDebug($"HasUniqueRoleAssignments == true for {list.DefaultViewUrl}");
+            }
+        }
+
+        private void RemoveListFromRecentQuickLaunch(Web web)
+        {
+            _logger.LogDebug($"Loading Recent QuickLaunch nodes on {web.Url}");
+
+            var recentNavNode = web.Navigation.GetNodeById(1033);
+            web.Context.Load(recentNavNode, i => i.Children);
+            web.Context.ExecuteQueryRetry();
+
+            var siteConfigNode = recentNavNode.Children.Where( node => node.Title == _listTitle).FirstOrDefault();
+
+            if(siteConfigNode != null)
+            {
+                _logger.LogDebug($"Removing SiteConfig node from Recent QuickLaunch on {web.Url}");
+                siteConfigNode.DeleteObject();
+                web.Context.ExecuteQueryRetry();
             }
         }
     }
